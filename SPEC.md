@@ -37,6 +37,19 @@ Each item in a wishlist must support the following fields:
 - **Edit Own Wishlist**: Users can add and remove items from their own wishlist
 - **Disable Items**: Users can disable items in their wishlist (items remain but are marked as disabled)
 
+### Item Creation
+- **URL-Based Item Creation**: Users can add items by providing just a URL
+  - System fetches the URL and parses the response to extract item details
+  - Parsed details include: name/title, description, and images
+  - System attempts to filter out irrelevant images (e.g., logos, icons, navigation elements)
+  - After parsing, user is presented with a pre-populated form for editing
+- **Image Selection**: 
+  - If multiple relevant images are found, user can:
+    - Select one of the parsed images to associate with the item
+    - Upload their own image instead
+  - If only one image is found, it is pre-selected but can be changed
+- **Manual Entry Option**: Users can choose to skip URL parsing and manually enter all item details themselves
+
 ### Shared Wishlist Viewing
 - **View Shared Wishlists**: Users can see a list of all wishlists that have been shared with them
 - **View Shared Wishlist Details**: Users can view the contents of a shared wishlist
@@ -94,5 +107,5 @@ Each item in a wishlist must support the following fields:
 ## Status
 - ✅ Core Functionality - Defined
 - ✅ User Experience - Defined
-- ⏳ Additional Features - Pending
+- ✅ Additional Features - Defined
 - ⏳ Technical Requirements - Pending
