@@ -115,9 +115,39 @@ Each item in a wishlist must support the following fields:
 
 ---
 
-## Status
+## Technical Requirements
 
-- ✅ Core Functionality - Defined
-- ✅ User Experience - Defined
-- ✅ Additional Features - Defined
-- ⏳ Technical Requirements - Pending
+### Technology Stack
+
+- **Frontend**: [Svelte], a JavaScript framework, using TypeScript
+- **Backend**: [Axum], a Rust web framework
+- **Repository Structure**: Single repository (monorepo) containing both frontend and backend
+
+### Architecture Decisions
+
+- **Database**: [PostgreSQL]
+- **Authentication**: Session-based authentication using:
+  - [argon2] for password hashing
+  - [tower-sessions] for session management
+  - [validator] for email validation
+- **Image Storage**: Local filesystem storage initially, with abstraction layer to allow easy migration to cloud storage (S3, etc.) via configuration
+- **URL Parsing**: Server-side (Rust) - fetch and parse static HTML to extract metadata (title, description, images) using [reqwest] for HTTP requests and [scraper] for HTML parsing. Start with static HTML parsing only; JavaScript rendering (e.g., headless browser) can be added later if needed for sites that require it.
+- **API Style**: REST
+- **Error Tracking**: [Sentry]
+- **CI/CD**: [GitHub Actions]
+- **Testing**:
+  - **Backend**: Built-in `cargo test` with unit and integration tests
+  - **Frontend**: [Vitest] for unit and component testing
+- **Deployment**: TBD (deferred)
+
+[argon2]: https://github.com/RustCrypto/password-hashes/tree/master/argon2
+[Axum]: https://github.com/tokio-rs/axum
+[GitHub Actions]: https://github.com/features/actions
+[PostgreSQL]: https://www.postgresql.org/
+[reqwest]: https://github.com/seanmonstar/reqwest
+[scraper]: https://github.com/causal-agent/scraper
+[Sentry]: https://sentry.io/
+[Svelte]: https://svelte.dev/
+[tower-sessions]: https://github.com/maxcountryman/tower-sessions
+[validator]: https://github.com/Keats/validator
+[Vitest]: https://vitest.dev/
