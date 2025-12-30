@@ -78,7 +78,7 @@ Each item in a wishlist must support the following fields:
 - **Shopping List View**: Items that have been claimed by the user appear on their personal shopping list
 - **Mark as Purchased**: Users can mark claimed items as purchased
   - Purchased items move from shopping list to a "purchased items" list
-  - Purchased items are tracked separately from claimed items
+  - Claims and purchases are tracked separately (a claim tracks both the quantity claimed and the quantity purchased, but they are distinct values)
 
 ### Item Status Management
 
@@ -92,9 +92,9 @@ Each item in a wishlist must support the following fields:
   - **Disabled** (by wishlist owner): Item is disabled but remains in the wishlist
   - **Deleted** (by wishlist owner): Item is removed from the wishlist
 - **Claim/Purchase Tracking**:
-  - Each item tracks how many have been claimed (by whom and in what quantity)
-  - Each item tracks how many have been purchased (by whom and in what quantity)
-  - Available quantity = Desired quantity - (Claimed quantity + Purchased quantity)
+  - Each item tracks claims (by whom, quantity claimed, and quantity purchased)
+  - Claims and purchases are tracked separately within each claim record (a user can claim 5 items but only purchase 2 of them)
+  - Available quantity = Desired quantity - Sum of (quantity_claimed - quantity_purchased) across all claims
   - For unlimited items: available quantity is always unlimited
 
 ### Notifications & Edge Cases
