@@ -1,6 +1,14 @@
 # NOTE: When introducing a new filetype to the project, ensure we add appropriate
 # linters/formatters to this configuration.
 
+ci:
+  skip:
+    # pre-commit.ci doesn't have cargo installed inside its runners so these
+    # jobs fail with "Executable `cargo` not found".
+    # https://github.com/pre-commit-ci/issues/issues/89
+    - fmt
+    - clippy
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
