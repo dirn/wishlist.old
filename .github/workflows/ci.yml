@@ -18,7 +18,7 @@ jobs:
           args: run --all-files
 
   backend:
-    name: Backend (Rust)
+    name: Backend
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -39,7 +39,7 @@ jobs:
         run: cargo test
 
   frontend:
-    name: Frontend (Svelte/TypeScript)
+    name: Frontend
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
