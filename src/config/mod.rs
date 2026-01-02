@@ -88,12 +88,47 @@ mod tests {
     // Serialize test execution to avoid environment variable conflicts
     static TEST_MUTEX: Mutex<()> = Mutex::new(());
 
+    // Helper to manage environment variables in tests
+    struct EnvGuard {
+        _lock: std::sync::MutexGuard<'static, ()>,
+        key: String,
+        original_value: Option<String>,
+    }
+
+    impl EnvGuard {
+        fn new(key: &str) -> Self {
+            let lock = TEST_MUTEX.lock().unwrap();
+            let original_value = std::env::var(key).ok();
+            Self {
+                _lock: lock,
+                key: key.to_string(),
+                original_value,
+            }
+        }
+
+        fn set(&self, value: &str) {
+            std::env::set_var(&self.key, value);
+        }
+
+        fn remove(&self) {
+            std::env::remove_var(&self.key);
+        }
+    }
+
+    impl Drop for EnvGuard {
+        fn drop(&mut self) {
+            if let Some(ref val) = self.original_value {
+                std::env::set_var(&self.key, val);
+            } else {
+                std::env::remove_var(&self.key);
+            }
+        }
+    }
+
     #[test]
     fn test_load_from_toml() {
-        let _guard = TEST_MUTEX.lock().unwrap();
-        // Clear any environment variables that might interfere
-        let env_backup = std::env::var("WISHLIST_DATABASE_URL").ok();
-        std::env::remove_var("WISHLIST_DATABASE_URL");
+        let _env = EnvGuard::new("WISHLIST_DATABASE_URL");
+        _env.remove();
 
         let temp_dir = TempDir::new().unwrap();
         let config_path = temp_dir.path().join("wishlist.toml");
@@ -115,36 +150,20 @@ url = "postgresql://localhost/testdb"
         assert_eq!(config.database.url, "postgresql://localhost/testdb");
 
         std::env::set_current_dir(original_dir).unwrap();
-
-        // Restore environment variable if it was set
-        if let Some(val) = env_backup {
-            std::env::set_var("WISHLIST_DATABASE_URL", val);
-        }
     }
 
     #[test]
     fn test_load_from_environment() {
-        let _guard = TEST_MUTEX.lock().unwrap();
-        // Backup and clear any existing value
-        let env_backup = std::env::var("WISHLIST_DATABASE_URL").ok();
-        std::env::set_var("WISHLIST_DATABASE_URL", "postgresql://localhost/envdb");
+        let _env = EnvGuard::new("WISHLIST_DATABASE_URL");
+        _env.set("postgresql://localhost/envdb");
 
         let config = Config::load().unwrap();
         assert_eq!(config.database.url, "postgresql://localhost/envdb");
-
-        // Restore or remove
-        if let Some(val) = env_backup {
-            std::env::set_var("WISHLIST_DATABASE_URL", val);
-        } else {
-            std::env::remove_var("WISHLIST_DATABASE_URL");
-        }
     }
 
     #[test]
     fn test_environment_overrides_toml() {
-        let _guard = TEST_MUTEX.lock().unwrap();
-        // Backup environment variable
-        let env_backup = std::env::var("WISHLIST_DATABASE_URL").ok();
+        let _env = EnvGuard::new("WISHLIST_DATABASE_URL");
 
         let temp_dir = TempDir::new().unwrap();
         let config_path = temp_dir.path().join("wishlist.toml");
@@ -162,19 +181,12 @@ url = "postgresql://localhost/tomldb"
         std::env::set_current_dir(temp_dir.path()).unwrap();
 
         // Set environment variable that should override TOML
-        std::env::set_var("WISHLIST_DATABASE_URL", "postgresql://localhost/envdb");
+        _env.set("postgresql://localhost/envdb");
 
         let config = Config::load().unwrap();
         // Environment should override TOML
         assert_eq!(config.database.url, "postgresql://localhost/envdb");
 
         std::env::set_current_dir(original_dir).unwrap();
-
-        // Restore environment variable
-        if let Some(val) = env_backup {
-            std::env::set_var("WISHLIST_DATABASE_URL", val);
-        } else {
-            std::env::remove_var("WISHLIST_DATABASE_URL");
-        }
     }
 }
