@@ -162,3 +162,6 @@ Cargo.lock
 dist
 dist-ssr
 *.local
+
+### Application Config ###
+wishlist.toml
