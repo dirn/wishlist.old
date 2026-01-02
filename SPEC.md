@@ -125,7 +125,7 @@ Each item in a wishlist must support the following fields:
 
 ### Architecture Decisions
 
-- **Database**: [PostgreSQL]
+- **Database**: [PostgreSQL] with [SeaORM] as the ORM
 - **Authentication**: Session-based authentication using:
   - [argon2] for password hashing
   - [tower-sessions] for session management
@@ -146,6 +146,7 @@ Each item in a wishlist must support the following fields:
 [PostgreSQL]: https://www.postgresql.org/
 [reqwest]: https://github.com/seanmonstar/reqwest
 [scraper]: https://github.com/causal-agent/scraper
+[SeaORM]: https://www.sea-ql.org/SeaORM/
 [Sentry]: https://sentry.io/
 [Svelte]: https://svelte.dev/
 [tower-sessions]: https://github.com/maxcountryman/tower-sessions
