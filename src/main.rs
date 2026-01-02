@@ -1,3 +1,4 @@
+mod config;
 mod db;
 mod entities;
 
