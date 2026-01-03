@@ -79,6 +79,17 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/wishlist_test
         run: sea-orm-cli migrate -d migration up
+      - name: Generate entities
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/wishlist_test
+        run: sea-orm-cli generate entity --output-dir src/entities
+      - name: Check for entity changes
+        run: |
+          if [ -n "$(git status --porcelain src/entities)" ]; then
+            echo "Error: Generated entities are out of date. Please run 'cargo run --bin generate-entity' and commit the changes."
+            git diff -- src/entities
+            exit 1
+          fi
 
   frontend:
     name: Frontend
