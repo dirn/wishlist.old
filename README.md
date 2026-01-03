@@ -40,6 +40,27 @@ Run tests:
 cargo test
 ```
 
+Run migrations:
+
+```bash
+cargo run --bin migrate
+```
+
+This will run all pending migrations. You can also pass additional arguments like `down` or `status`:
+
+```bash
+cargo run --bin migrate -- down
+cargo run --bin migrate -- status
+```
+
+Generate entities from database schema:
+
+```bash
+cargo run --bin generate-entity
+```
+
+Note: Make sure migrations have been run first so the database tables exist.
+
 ### Frontend
 
 ```bash
