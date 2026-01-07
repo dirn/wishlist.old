@@ -140,15 +140,15 @@ Each item in a wishlist must support the following fields:
   - **Frontend**: [Vitest] for unit and component testing
 - **Deployment**: TBD (deferred)
 
-[argon2]: https://github.com/RustCrypto/password-hashes/tree/master/argon2
-[Axum]: https://github.com/tokio-rs/axum
+[argon2]: https://docs.rs/argon2/
+[Axum]: https://docs.rs/axum/
 [GitHub Actions]: https://github.com/features/actions
 [PostgreSQL]: https://www.postgresql.org/
-[reqwest]: https://github.com/seanmonstar/reqwest
-[scraper]: https://github.com/causal-agent/scraper
-[SeaORM]: https://www.sea-ql.org/SeaORM/
+[reqwest]: https://docs.rs/reqwest/
+[scraper]: https://docs.rs/scraper/
+[SeaORM]: https://docs.rs/sea-orm/
 [Sentry]: https://sentry.io/
 [Svelte]: https://svelte.dev/
-[tower-sessions]: https://github.com/maxcountryman/tower-sessions
-[validator]: https://github.com/Keats/validator
+[tower-sessions]: https://docs.rs/tower-sessions/
+[validator]: https://docs.rs/validator/
 [Vitest]: https://vitest.dev/
