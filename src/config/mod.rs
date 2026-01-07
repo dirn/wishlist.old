@@ -86,50 +86,12 @@ mod tests {
     use tempfile::TempDir;
 
     // Serialize test execution to avoid environment variable conflicts
+    // temp-env handles restoration per-thread, but env vars are process-global
     static TEST_MUTEX: Mutex<()> = Mutex::new(());
-
-    // Helper to manage environment variables in tests
-    struct EnvGuard {
-        _lock: std::sync::MutexGuard<'static, ()>,
-        key: String,
-        original_value: Option<String>,
-    }
-
-    impl EnvGuard {
-        fn new(key: &str) -> Self {
-            let lock = TEST_MUTEX.lock().unwrap();
-            let original_value = std::env::var(key).ok();
-            Self {
-                _lock: lock,
-                key: key.to_string(),
-                original_value,
-            }
-        }
-
-        fn set(&self, value: &str) {
-            std::env::set_var(&self.key, value);
-        }
-
-        fn remove(&self) {
-            std::env::remove_var(&self.key);
-        }
-    }
-
-    impl Drop for EnvGuard {
-        fn drop(&mut self) {
-            if let Some(ref val) = self.original_value {
-                std::env::set_var(&self.key, val);
-            } else {
-                std::env::remove_var(&self.key);
-            }
-        }
-    }
 
     #[test]
     fn test_load_from_toml() {
-        let _env = EnvGuard::new("WISHLIST_DATABASE_URL");
-        _env.remove();
-
+        let _lock = TEST_MUTEX.lock().unwrap();
         let temp_dir = TempDir::new().unwrap();
         let config_path = temp_dir.path().join("wishlist.toml");
 
@@ -146,25 +108,32 @@ url = "postgresql://localhost/testdb"
         let original_dir = std::env::current_dir().unwrap();
         std::env::set_current_dir(temp_dir.path()).unwrap();
 
-        let config = Config::load().unwrap();
-        assert_eq!(config.database.url, "postgresql://localhost/testdb");
+        // Ensure the environment variable is not set for this test
+        // temp-env will restore the original value (or unset it) after the closure
+        temp_env::with_var_unset("WISHLIST_DATABASE_URL", || {
+            let config = Config::load().unwrap();
+            assert_eq!(config.database.url, "postgresql://localhost/testdb");
+        });
 
         std::env::set_current_dir(original_dir).unwrap();
     }
 
     #[test]
     fn test_load_from_environment() {
-        let _env = EnvGuard::new("WISHLIST_DATABASE_URL");
-        _env.set("postgresql://localhost/envdb");
-
-        let config = Config::load().unwrap();
-        assert_eq!(config.database.url, "postgresql://localhost/envdb");
+        let _lock = TEST_MUTEX.lock().unwrap();
+        temp_env::with_var(
+            "WISHLIST_DATABASE_URL",
+            Some("postgresql://localhost/envdb"),
+            || {
+                let config = Config::load().unwrap();
+                assert_eq!(config.database.url, "postgresql://localhost/envdb");
+            },
+        );
     }
 
     #[test]
     fn test_environment_overrides_toml() {
-        let _env = EnvGuard::new("WISHLIST_DATABASE_URL");
-
+        let _lock = TEST_MUTEX.lock().unwrap();
         let temp_dir = TempDir::new().unwrap();
         let config_path = temp_dir.path().join("wishlist.toml");
 
@@ -180,12 +149,15 @@ url = "postgresql://localhost/tomldb"
         let original_dir = std::env::current_dir().unwrap();
         std::env::set_current_dir(temp_dir.path()).unwrap();
 
-        // Set environment variable that should override TOML
-        _env.set("postgresql://localhost/envdb");
-
-        let config = Config::load().unwrap();
-        // Environment should override TOML
-        assert_eq!(config.database.url, "postgresql://localhost/envdb");
+        temp_env::with_var(
+            "WISHLIST_DATABASE_URL",
+            Some("postgresql://localhost/envdb"),
+            || {
+                let config = Config::load().unwrap();
+                // Environment should override TOML
+                assert_eq!(config.database.url, "postgresql://localhost/envdb");
+            },
+        );
 
         std::env::set_current_dir(original_dir).unwrap();
     }
