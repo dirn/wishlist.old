@@ -23,13 +23,13 @@ repos:
       - id: mixed-line-ending
 
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.47.0
+    rev: v0.49.1
     hooks:
       - id: markdownlint
         args: [--fix]
 
   - repo: https://github.com/editorconfig-checker/editorconfig-checker
-    rev: v3.6.0
+    rev: v4.0.1
     hooks:
       - id: editorconfig-checker
 
